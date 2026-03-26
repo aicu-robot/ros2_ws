@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<robot name="fw_mini" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Gazebo material / friction properties -->
+  <gazebo reference="base_link">
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="left_rear_wheel">
+    <mu1>1.0</mu1>
+    <mu2>2.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <fdir1>0 0 1</fdir1>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="right_rear_wheel">
+    <mu1>1.0</mu1>
+    <mu2>2.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <fdir1>0 0 1</fdir1>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="left_front_wheel">
+    <mu1>1.0</mu1>
+    <mu2>2.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <fdir1>0 0 1</fdir1>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="right_front_wheel">
+    <mu1>1.0</mu1>
+    <mu2>2.0</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <fdir1>0 0 1</fdir1>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Differential drive plugin (cmd_vel → odom 직접 퍼블리시, Nav2 연결용) -->
+  <gazebo>
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <ros>
+        <remapping>cmd_vel:=cmd_vel</remapping>
+        <remapping>odom:=odom</remapping>
+      </ros>
+
+      <!-- 후륜 2개를 구동 바퀴로 사용 -->
+      <left_joint>left_rear_wheel_joint</left_joint>
+      <right_joint>right_rear_wheel_joint</right_joint>
+
+      <!-- 로봇 치수 (바퀴 반지름: 0.07m, 좌우 바퀴 간격: 0.25m) -->
+      <wheel_separation>0.25</wheel_separation>
+      <wheel_diameter>0.14</wheel_diameter>
+
+      <max_wheel_torque>20</max_wheel_torque>
+      <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+    </plugin>
+  </gazebo>
+
+  <!-- joint_state_publisher (wheel joint states 퍼블리시) -->
+  <gazebo>
+    <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+      <ros>
+        <remapping>~/out:=joint_states</remapping>
+      </ros>
+      <update_rate>50</update_rate>
+      <joint_name>right_rear_wheel_joint</joint_name>
+      <joint_name>left_rear_wheel_joint</joint_name>
+      <joint_name>right_front_wheel_joint</joint_name>
+      <joint_name>left_front_wheel_joint</joint_name>
+      <joint_name>right_steering_hinge_joint</joint_name>
+      <joint_name>left_steering_hinge_joint</joint_name>
+      <joint_name>rear_right_steering_hinge_joint</joint_name>
+      <joint_name>rear_left_steering_hinge_joint</joint_name>
+    </plugin>
+  </gazebo>
+
+  <!-- IMU sensor plugin -->
+  <gazebo reference="sensor">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+        <ros>
+          <remapping>~/out:=imu/data</remapping>
+        </ros>
+        <initial_orientation_as_reference>false</initial_orientation_as_reference>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Livox Mid-360 simulation: PointCloud2 via ray sensor (placeholder) -->
+  <!-- 실제 Livox 패턴은 FAST-LIO2 연결 시 대체됨. 시뮬에서는 GPU ray sensor 사용 -->
+  <gazebo reference="livox_frame">
+    <sensor name="livox_lidar" type="ray">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>32</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.5236</min_angle>  <!-- -30 deg -->
+            <max_angle>0.5236</max_angle>   <!-- +30 deg -->
+          </vertical>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>40.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </ray>
+      <plugin name="livox_ros" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=livox/lidar</remapping>
+        </ros>
+        <output_type>sensor_msgs/PointCloud2</output_type>
+        <frame_name>livox_frame</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</robot>

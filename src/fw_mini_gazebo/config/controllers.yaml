@@ -1,0 +1,28 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    rear_wheel_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    steering_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+rear_wheel_velocity_controller:
+  ros__parameters:
+    joints:
+      - right_rear_wheel_joint
+      - left_rear_wheel_joint
+      - right_front_wheel_joint
+      - left_front_wheel_joint
+
+steering_position_controller:
+  ros__parameters:
+    joints:
+      - right_steering_hinge_joint
+      - left_steering_hinge_joint
+      - rear_right_steering_hinge_joint
+      - rear_left_steering_hinge_joint
