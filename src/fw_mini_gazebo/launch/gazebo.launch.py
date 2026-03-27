@@ -1,7 +1,8 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable, RegisterEventHandler
+from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
@@ -83,6 +84,35 @@ def generate_launch_description():
         ]
     )
 
+    # -----------------------------------------------
+    # Controller spawners (spawn_robot 완료 후 실행)
+    # -----------------------------------------------
+    joint_state_broadcaster_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+    )
+
+    diff_drive_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['diff_drive_controller', '--controller-manager', '/controller_manager'],
+    )
+
+    # spawn_robot 완료 후 순서대로 spawner 실행
+    spawn_jsb = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=spawn_robot,
+            on_exit=[joint_state_broadcaster_spawner],
+        )
+    )
+    spawn_diff = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=joint_state_broadcaster_spawner,
+            on_exit=[diff_drive_spawner],
+        )
+    )
+
     return LaunchDescription([
         gazebo_model_path,
         DeclareLaunchArgument('use_sim_time', default_value='true'),
@@ -97,4 +127,6 @@ def generate_launch_description():
         gazebo,
         robot_state_publisher,
         spawn_robot,
+        spawn_jsb,
+        spawn_diff,
     ])
