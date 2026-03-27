@@ -36,7 +36,7 @@ class TeleopKeyboard(Node):
         super().__init__('fw_mini_teleop_keyboard')
 
         self.pub = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.timer = self.create_timer(0.05, self.publish_cmd)  # 20 Hz
+        self.timer = self.create_timer(0.02, self.publish_cmd)  # 50 Hz
 
         self.pressed = set()
         self.linear_speed  = 0.3
