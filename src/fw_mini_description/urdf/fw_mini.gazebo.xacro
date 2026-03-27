@@ -3,16 +3,16 @@
 
   <!-- Gazebo material / friction properties -->
   <gazebo reference="base_link">
-    <mu1>0.0</mu1>
-    <mu2>0.0</mu2>
+    <mu1>1.0</mu1>
+    <mu2>0.9</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
     <material>Gazebo/White</material>
   </gazebo>
 
   <gazebo reference="left_rear_wheel">
-    <mu1>1.0</mu1>
-    <mu2>2.0</mu2>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
     <fdir1>0 0 1</fdir1>
@@ -20,8 +20,8 @@
   </gazebo>
 
   <gazebo reference="right_rear_wheel">
-    <mu1>1.0</mu1>
-    <mu2>2.0</mu2>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
     <fdir1>0 0 1</fdir1>
@@ -29,7 +29,7 @@
   </gazebo>
 
   <gazebo reference="left_front_wheel">
-    <mu1>0.1</mu1>
+    <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
@@ -37,19 +37,41 @@
   </gazebo>
 
   <gazebo reference="right_front_wheel">
-    <mu1>0.1</mu1>
+    <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <kp>10000000.0</kp>
     <kd>1.0</kd>
     <material>Gazebo/Black</material>
   </gazebo>
 
-  <!-- gazebo_ros2_control: ros2_control 하드웨어 인터페이스 -->
+  <!-- diff_drive plugin: 4륜 skid-steer -->
   <gazebo>
-    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-      <parameters>$(find fw_mini_description)/config/controllers.yaml</parameters>
-      <robot_param>robot_description</robot_param>
-      <robot_param_node>robot_state_publisher</robot_param_node>
+    <plugin name="skid_steer_drive" filename="libgazebo_ros_diff_drive.so">
+      <update_rate>50</update_rate>
+
+      <num_wheel_pairs>2</num_wheel_pairs>
+
+      <left_joint>left_rear_wheel_joint</left_joint>
+      <left_joint>left_front_wheel_joint</left_joint>
+
+      <right_joint>right_rear_wheel_joint</right_joint>
+      <right_joint>right_front_wheel_joint</right_joint>
+
+      <wheel_separation>0.25</wheel_separation>
+      <wheel_separation>0.25</wheel_separation>
+
+      <wheel_diameter>0.14</wheel_diameter>
+      <wheel_diameter>0.14</wheel_diameter>
+
+      <max_wheel_torque>200</max_wheel_torque>
+      <max_wheel_acceleration>10.0</max_wheel_acceleration>
+
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
     </plugin>
   </gazebo>
 

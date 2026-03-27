@@ -68,7 +68,21 @@ class TeleopKeyboard(Node):
 
     def _on_press(self, key):
         try:
-            self.pressed.add(key.char.lower())
+            c = key.char.lower()
+            if c == 'q':
+                self.linear_speed = round(min(self.linear_speed + 0.1, MAX_LINEAR), 2)
+                print(f'\n  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s', flush=True)
+            elif c == 'e':
+                self.linear_speed = round(max(self.linear_speed - 0.1, 0.05), 2)
+                print(f'\n  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s', flush=True)
+            elif c == 'z':
+                self.angular_speed = round(min(self.angular_speed + 0.1, MAX_ANGULAR), 2)
+                print(f'\n  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s', flush=True)
+            elif c == 'c':
+                self.angular_speed = round(max(self.angular_speed - 0.1, 0.1), 2)
+                print(f'\n  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s', flush=True)
+            else:
+                self.pressed.add(c)
         except AttributeError:
             self.pressed.add(key)
 
@@ -86,20 +100,6 @@ class TeleopKeyboard(Node):
     def publish_cmd(self):
         p = self.pressed
         twist = Twist()
-
-        # 속도 조절
-        if 'q' in p:
-            self.linear_speed = min(self.linear_speed + LINEAR_STEP, MAX_LINEAR)
-            print(f'\r  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s    ', end='', flush=True)
-        if 'e' in p:
-            self.linear_speed = max(self.linear_speed - LINEAR_STEP, 0.05)
-            print(f'\r  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s    ', end='', flush=True)
-        if 'z' in p:
-            self.angular_speed = min(self.angular_speed + ANGULAR_STEP, MAX_ANGULAR)
-            print(f'\r  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s    ', end='', flush=True)
-        if 'c' in p:
-            self.angular_speed = max(self.angular_speed - ANGULAR_STEP, 0.1)
-            print(f'\r  선속도: {self.linear_speed:.2f} m/s  |  각속도: {self.angular_speed:.2f} rad/s    ', end='', flush=True)
 
         # 전진 / 후진
         if 'w' in p:

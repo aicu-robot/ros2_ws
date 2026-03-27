@@ -8,9 +8,6 @@ def generate_launch_description():
         executable='teleop_keyboard',
         name='teleop_keyboard',
         output='screen',
-        remappings=[
-            ('/cmd_vel', '/diff_drive_controller/cmd_vel_unstamped'),
-        ],
     )
 
     return LaunchDescription([teleop])
